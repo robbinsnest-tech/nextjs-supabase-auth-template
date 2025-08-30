@@ -20,15 +20,19 @@ import { GoogleIcon } from "@/components/ui/icons";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import Link from "next/link";
+import { signUpWithEmail } from "@/lib/auth/client-auth";
+import { redirect } from "next/navigation";
 
 export default function SignUpForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordValue, setPasswordValue] = useState("");
+  const [error, setError] = useState("");
   const [requirements, setRequirements] = useState(
     passwordRequirements.map((req) => ({ ...req, met: false }))
   );
+  const [message, setMessage] = useState("");
 
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
@@ -49,17 +53,25 @@ export default function SignUpForm() {
     setRequirements(newRequirements);
   }, [passwordValue]);
 
-  async function onSubmit(data: SignUpFormValues) {
+  async function onSubmit(formData: SignUpFormValues) {
+    // Sign in with email and password, error handling is done in the auth.ts file
     setIsLoading(true);
-    try {
-      // TODO: Implement sign up logic here
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    setError("");
+    const { data, error } = await signUpWithEmail(
+      formData.email,
+      formData.password,
+      formData.firstName,
+      formData.lastName
+    );
+    if (error) {
+      setError(error.message);
+    } else {
       console.log(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
+      setMessage(
+        "Email sent! Please check your inbox to confirm your account."
+      );
     }
+    setIsLoading(false);
   }
 
   return (
@@ -175,28 +187,54 @@ export default function SignUpForm() {
                 )}
               </button>
             </div>
-            {passwordValue.length > 0 && (
-              <Card className="mt-2 bg-gray-50 border-gray-200">
-                <CardContent className="p-4 space-y-2">
-                  <p className="text-sm font-medium text-gray-700 mb-2">
-                    Password Requirements:
-                  </p>
+            {form.getFieldState("password").isTouched && (
+              <div className="mt-2 p-3 bg-gray-50 rounded-md border border-gray-200">
+                <p className="text-sm font-medium text-gray-700 mb-2">
+                  Password Requirements:
+                </p>
+                <div className="space-y-2">
                   {requirements.map((req) => (
                     <div key={req.id} className="flex items-center space-x-2">
                       {req.met ? (
-                        <Check className="h-4 w-4 text-green-500" />
+                        <svg
+                          className="w-4 h-4 text-green-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
                       ) : (
-                        <X className="h-4 w-4 text-gray-400" />
+                        <svg
+                          className="w-4 h-4 text-gray-400"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
                       )}
                       <span
-                        className={req.met ? "text-green-500" : "text-gray-500"}
+                        className={`text-sm ${
+                          req.met ? "text-green-600" : "text-gray-600"
+                        }`}
                       >
                         {req.label}
                       </span>
                     </div>
                   ))}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             )}
           </div>
           <div className="space-y-2">
@@ -271,6 +309,12 @@ export default function SignUpForm() {
             <GoogleIcon className="mr-2 h-5 w-5" />
             Sign up with Google
           </Button>
+          {error && (
+            <div className="text-sm text-red-500 text-center">{error}</div>
+          )}
+          {message && (
+            <div className="text-sm text-green-500 text-center">{message}</div>
+          )}
           <div className="text-center text-sm text-gray-500">
             Already have an account?{" "}
             <Link href="/sign-in" className="text-[#1F4272] hover:underline">
