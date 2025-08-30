@@ -1,13 +1,10 @@
 "use client";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "../ui/collapsible";
+import { Collapsible, CollapsibleContent } from "../ui/collapsible";
 import { Button } from "../ui/button";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import Image from "next/image";
 
 export default function MobileHeader() {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,9 +13,12 @@ export default function MobileHeader() {
     <>
       <header className="flex md:hidden flex-col w-full">
         <div className="flex justify-between items-center px-6 py-4 border-b w-full">
-          <Button asChild variant="ghost" size="lg">
-            <Link href="/">Home</Link>
-          </Button>
+          <Link
+            href="/"
+            className="flex items-center hover:opacity-80 transition-opacity"
+          >
+            <Image src="/logo.png" alt="Logo" width={60} height={60} priority />
+          </Link>
           <Button
             variant="ghost"
             size="icon"

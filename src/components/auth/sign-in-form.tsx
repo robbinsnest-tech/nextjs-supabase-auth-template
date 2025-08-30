@@ -21,10 +21,19 @@ import { signInSchema } from "@/lib/forms";
 import Image from "next/image";
 import { GoogleIcon } from "../ui/icons";
 import { Separator } from "../ui/separator";
+import {
+  resendConfirmationEmail,
+  signInWithEmail,
+} from "@/lib/auth/client-auth";
+import { redirect } from "next/navigation";
 
 export default function SignInForm() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [signInIsLoading, setSignInIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [showResendEmail, setShowResendEmail] = useState(false);
+  const [message, setMessage] = useState("");
+  const [resendIsLoading, setResendIsLoading] = useState(false);
 
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
@@ -34,16 +43,36 @@ export default function SignInForm() {
     },
   });
 
-  async function onSubmit(data: SignInFormValues) {
-    setIsLoading(true);
-    try {
-      // TODO: Implement sign in logic here
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+  async function onSubmit(formData: SignInFormValues) {
+    // Sign in with email and password, error handling is done in the auth.ts file
+    setSignInIsLoading(true);
+    setError("");
+    const { data, error } = await signInWithEmail(
+      formData.email,
+      formData.password
+    );
+    if (error && error.message.includes("Email not confirmed")) {
+      setError(error.message);
+      setShowResendEmail(true);
+    } else if (error) {
+      setError(error.message);
+    } else {
       console.log(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
+      redirect("/dashboard");
+    }
+    setSignInIsLoading(false);
+  }
+
+  async function resendClickHandler() {
+    setResendIsLoading(true);
+    const { error } = await resendConfirmationEmail(form.getValues("email"));
+
+    if (error) {
+      setError(error.message);
+    } else {
+      setMessage("Confirmation email sent. Please check your inbox.");
+      setError("");
+      setResendIsLoading(false);
     }
   }
 
@@ -77,7 +106,7 @@ export default function SignInForm() {
               placeholder="john.doe@example.com"
               {...form.register("email")}
               className={form.formState.errors.email ? "border-red-500" : ""}
-              disabled={isLoading}
+              disabled={signInIsLoading}
             />
             {form.formState.errors.email && (
               <p className="text-sm text-red-500">
@@ -102,7 +131,7 @@ export default function SignInForm() {
                     ? "border-red-500 pr-10"
                     : "pr-10"
                 }
-                disabled={isLoading}
+                disabled={signInIsLoading}
               />
               <button
                 type="button"
@@ -126,12 +155,14 @@ export default function SignInForm() {
         <CardFooter className="flex flex-col gap-4 pt-6">
           <Button
             className="w-full"
-            disabled={isLoading}
+            disabled={signInIsLoading}
             type="submit"
             variant="default"
           >
-            {isLoading ? "Signing in..." : "Sign In"}
-            {isLoading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+            {signInIsLoading ? "Signing in..." : "Sign In"}
+            {signInIsLoading && (
+              <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+            )}
           </Button>
 
           <div className="flex items-center gap-2 w-full">
@@ -155,6 +186,24 @@ export default function SignInForm() {
             Sign in with Google
           </Button>
 
+          {error && (
+            <div className="text-sm text-red-500 text-center">{error}</div>
+          )}
+          {message && (
+            <div className="text-sm text-green-500 text-center">{message}</div>
+          )}
+          {showResendEmail && (
+            <div className="text-sm text-gray-500 text-center">
+              <Button
+                variant="link"
+                onClick={async () => {
+                  resendClickHandler();
+                }}
+              >
+                Resend confirmation email
+              </Button>
+            </div>
+          )}
           <div className="text-center text-sm text-gray-500">
             Don't have an account?{" "}
             <Link href="/sign-up" className="text-[#1F4272] hover:underline">
