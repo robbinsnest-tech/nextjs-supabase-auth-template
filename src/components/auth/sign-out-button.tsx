@@ -1,6 +1,6 @@
 "use client";
 
-import { signOut } from "@/lib/auth/client-auth";
+import { signOut } from "@/lib/auth";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -26,7 +26,7 @@ export default function SignOutButton({
 
     // Start the sign out process after a delay to show the animation
     setTimeout(async () => {
-      const { data, error } = await signOut();
+      const { error } = await signOut();
 
       if (!error) {
         setAnimationComplete(true);

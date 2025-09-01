@@ -15,7 +15,7 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
+          cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
           supabaseResponse = NextResponse.next({
@@ -81,6 +81,7 @@ function isAuthRoute(pathname: string): boolean {
   return (
     pathname.startsWith("/sign-in") ||
     pathname.startsWith("/sign-up") ||
-    pathname.startsWith("/auth/confirm")
+    pathname.startsWith("/auth/confirm") ||
+    pathname.startsWith("/auth/callback")
   );
 }
