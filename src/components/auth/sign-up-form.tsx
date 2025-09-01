@@ -59,14 +59,14 @@ export default function SignUpForm() {
     // Sign in with email and password, error handling is done in the auth.ts file
     setIsLoading(true);
     setError("");
-    const { data, error } = await signUpWithEmail(
+    const { error } = await signUpWithEmail(
       formData.email,
       formData.password,
       formData.firstName,
       formData.lastName
     );
     if (error) {
-      setError(error.message);
+      setError(error);
     } else {
       // Clear all form fields
       form.reset({
@@ -98,7 +98,7 @@ export default function SignUpForm() {
     const { data, error } = await signInWithGoogle();
 
     if (error) {
-      setError(error.message);
+      setError(error);
       setGoogleIsLoading(false);
       return;
     }

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export const dynamic = "force-dynamic";
 
 export default async function Dashboard() {
-  const { data, error } = await getUser();
+  const { data } = await getUser();
   const user = data?.user;
 
   return (

@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
 
     // Successful verification
     return NextResponse.redirect(new URL("/dashboard", request.url));
-  } catch (error) {
+  } catch {
     return NextResponse.redirect(
       new URL("/sign-in?error=Something went wrong", request.url)
     );

@@ -26,7 +26,7 @@ export default function SignOutButton({
 
     // Start the sign out process after a delay to show the animation
     setTimeout(async () => {
-      const { data, error } = await signOut();
+      const { error } = await signOut();
 
       if (!error) {
         setAnimationComplete(true);

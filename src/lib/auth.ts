@@ -35,7 +35,7 @@ export async function signUpWithEmail(
     if (error) {
       return {
         data: null,
-        error,
+        error: error.message,
       };
     }
     return {
@@ -46,7 +46,7 @@ export async function signUpWithEmail(
     console.error("Unexpected sign up error:", err);
     return {
       data: null,
-      error: new Error("Something went wrong. Please try again."),
+      error: "Something went wrong. Please try again.",
     };
   }
 }
@@ -62,7 +62,7 @@ export async function signInWithEmail(email: string, password: string) {
     if (error) {
       return {
         data: null,
-        error,
+        error: error.message,
       };
     }
     return {
@@ -73,7 +73,7 @@ export async function signInWithEmail(email: string, password: string) {
     console.error("Unexpected sign up error:", err);
     return {
       data: null,
-      error: new Error("Something went wrong. Please try again."),
+      error: "Something went wrong. Please try again.",
     };
   }
 }
@@ -105,14 +105,14 @@ export async function signInWithGoogle() {
     if (error) {
       return {
         data: null,
-        error,
+        error: error.message,
       };
     }
 
     if (!data.url) {
       return {
         data: null,
-        error: new Error("Failed to get authorization URL"),
+        error: "Failed to get authorization URL",
       };
     }
 
@@ -124,7 +124,7 @@ export async function signInWithGoogle() {
     console.error("Unexpected get user error:", err);
     return {
       data: null,
-      error: new Error("Something went wrong. Please try again."),
+      error: "Something went wrong. Please try again.",
     };
   }
 }
@@ -137,7 +137,7 @@ export async function signOut() {
     if (error) {
       return {
         data: null,
-        error,
+        error: error.message,
       };
     } else {
       return {
@@ -149,7 +149,7 @@ export async function signOut() {
     console.error("Unexpected sign out error:", err);
     return {
       data: null,
-      error: new Error("Something went wrong. Please try again."),
+      error: "Something went wrong. Please try again.",
     };
   }
 }
@@ -162,7 +162,7 @@ export async function getUser() {
     if (error) {
       return {
         data: null,
-        error,
+        error: error.message,
       };
     }
     return {
@@ -173,7 +173,7 @@ export async function getUser() {
     console.error("Unexpected get user error:", err);
     return {
       data: null,
-      error: new Error("Something went wrong. Please try again."),
+      error: "Something went wrong. Please try again.",
     };
   }
 }
@@ -201,7 +201,7 @@ export async function resendConfirmationEmail(email: string) {
     if (error) {
       return {
         data: null,
-        error,
+        error: error.message,
       };
     }
     return {
@@ -212,7 +212,7 @@ export async function resendConfirmationEmail(email: string) {
     console.error("Unexpected get user error:", err);
     return {
       data: null,
-      error: new Error("Something went wrong. Please try again."),
+      error: "Something went wrong. Please try again.",
     };
   }
 }

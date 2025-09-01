@@ -1,6 +1,5 @@
 "use client";
 
-import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -26,9 +25,10 @@ import {
   signInWithEmail,
   signInWithGoogle,
 } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function SignInForm() {
+  const router = useRouter();
   const [signInIsLoading, setSignInIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -49,30 +49,24 @@ export default function SignInForm() {
     // Sign in with email and password, error handling is done in the auth.ts file
     setSignInIsLoading(true);
     setError("");
-    const { data, error } = await signInWithEmail(
-      formData.email,
-      formData.password
-    );
-    if (error && error.message.includes("Email not confirmed")) {
-      setError(error.message);
+    const { error } = await signInWithEmail(formData.email, formData.password);
+    if (error && error.includes("Email not confirmed")) {
+      setError(error);
       setShowResendEmail(true);
     } else if (error) {
-      setError(error.message);
+      setError(error);
     } else {
-      console.log(data);
-      redirect("/dashboard");
+      router.push("/dashboard");
     }
     setSignInIsLoading(false);
   }
 
   async function resendClickHandler() {
     setResendIsLoading(true);
-    const { data, error } = await resendConfirmationEmail(
-      form.getValues("email")
-    );
+    const { error } = await resendConfirmationEmail(form.getValues("email"));
 
     if (error) {
-      setError(error.message);
+      setError(error);
     } else {
       setMessage("Confirmation email sent. Please check your inbox.");
       setError("");
@@ -87,7 +81,7 @@ export default function SignInForm() {
     const { data, error } = await signInWithGoogle();
 
     if (error) {
-      setError(error.message);
+      setError(error);
       setGoogleIsLoading(false);
       return;
     }
@@ -237,7 +231,7 @@ export default function SignInForm() {
             </div>
           )}
           <div className="text-center text-sm text-gray-500">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link href="/sign-up" className="text-[#1F4272] hover:underline">
               Sign up
             </Link>
