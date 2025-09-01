@@ -81,6 +81,7 @@ function isAuthRoute(pathname: string): boolean {
   return (
     pathname.startsWith("/sign-in") ||
     pathname.startsWith("/sign-up") ||
-    pathname.startsWith("/auth/confirm")
+    pathname.startsWith("/auth/confirm") ||
+    pathname.startsWith("/auth/callback")
   );
 }

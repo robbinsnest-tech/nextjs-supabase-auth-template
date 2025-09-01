@@ -15,13 +15,12 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
-import { Eye, EyeOff, Loader2, Check, X } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { GoogleIcon } from "@/components/ui/icons";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import Link from "next/link";
-import { signUpWithEmail } from "@/lib/auth/client-auth";
-import { redirect } from "next/navigation";
+import { signInWithGoogle, signUpWithEmail } from "@/lib/auth";
 
 export default function SignUpForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -29,10 +28,13 @@ export default function SignUpForm() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordValue, setPasswordValue] = useState("");
   const [error, setError] = useState("");
+  const [showPasswordRequirements, setShowPasswordRequirements] =
+    useState(false);
   const [requirements, setRequirements] = useState(
     passwordRequirements.map((req) => ({ ...req, met: false }))
   );
   const [message, setMessage] = useState("");
+  const [googleIsLoading, setGoogleIsLoading] = useState(false);
 
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
@@ -66,12 +68,48 @@ export default function SignUpForm() {
     if (error) {
       setError(error.message);
     } else {
-      console.log(data);
+      // Clear all form fields
+      form.reset({
+        firstName: "",
+        lastName: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      });
+
+      // Reset password-related states
+      setPasswordValue("");
+      setShowPasswordRequirements(false);
+      setShowPassword(false);
+      setShowConfirmPassword(false);
+
+      // Show success message
       setMessage(
         "Email sent! Please check your inbox to confirm your account."
       );
     }
     setIsLoading(false);
+  }
+
+  async function googleClickHandler() {
+    setGoogleIsLoading(true);
+    setError("");
+
+    const { data, error } = await signInWithGoogle();
+
+    if (error) {
+      setError(error.message);
+      setGoogleIsLoading(false);
+      return;
+    }
+
+    // Redirect to the Google OAuth URL
+    if (data?.url) {
+      window.location.href = data.url;
+    } else {
+      setError("Failed to initiate Google sign in");
+      setGoogleIsLoading(false);
+    }
   }
 
   return (
@@ -173,7 +211,11 @@ export default function SignUpForm() {
                     : "pr-10"
                 }
                 disabled={isLoading}
-                onChange={(e) => setPasswordValue(e.target.value)}
+                onChange={(e) => {
+                  setPasswordValue(e.target.value);
+                  if (e.target.value) setShowPasswordRequirements(true);
+                }}
+                onFocus={() => setShowPasswordRequirements(true)}
               />
               <button
                 type="button"
@@ -187,7 +229,7 @@ export default function SignUpForm() {
                 )}
               </button>
             </div>
-            {form.getFieldState("password").isTouched && (
+            {showPasswordRequirements && (
               <div className="mt-2 p-3 bg-gray-50 rounded-md border border-gray-200">
                 <p className="text-sm font-medium text-gray-700 mb-2">
                   Password Requirements:
@@ -302,12 +344,15 @@ export default function SignUpForm() {
             variant="outline"
             className="w-full"
             onClick={() => {
-              // TODO: Implement Google sign up
-              console.log("Google sign up clicked");
+              googleClickHandler();
             }}
+            disabled={googleIsLoading}
           >
             <GoogleIcon className="mr-2 h-5 w-5" />
-            Sign up with Google
+            {googleIsLoading ? "Signing up..." : "Sign up with Google"}
+            {googleIsLoading && (
+              <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+            )}
           </Button>
           {error && (
             <div className="text-sm text-red-500 text-center">{error}</div>

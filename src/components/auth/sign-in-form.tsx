@@ -24,7 +24,8 @@ import { Separator } from "../ui/separator";
 import {
   resendConfirmationEmail,
   signInWithEmail,
-} from "@/lib/auth/client-auth";
+  signInWithGoogle,
+} from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 export default function SignInForm() {
@@ -34,6 +35,7 @@ export default function SignInForm() {
   const [showResendEmail, setShowResendEmail] = useState(false);
   const [message, setMessage] = useState("");
   const [resendIsLoading, setResendIsLoading] = useState(false);
+  const [googleIsLoading, setGoogleIsLoading] = useState(false);
 
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
@@ -65,7 +67,9 @@ export default function SignInForm() {
 
   async function resendClickHandler() {
     setResendIsLoading(true);
-    const { error } = await resendConfirmationEmail(form.getValues("email"));
+    const { data, error } = await resendConfirmationEmail(
+      form.getValues("email")
+    );
 
     if (error) {
       setError(error.message);
@@ -73,6 +77,27 @@ export default function SignInForm() {
       setMessage("Confirmation email sent. Please check your inbox.");
       setError("");
       setResendIsLoading(false);
+    }
+  }
+
+  async function googleClickHandler() {
+    setGoogleIsLoading(true);
+    setError("");
+
+    const { data, error } = await signInWithGoogle();
+
+    if (error) {
+      setError(error.message);
+      setGoogleIsLoading(false);
+      return;
+    }
+
+    // Redirect to the Google OAuth URL
+    if (data?.url) {
+      window.location.href = data.url;
+    } else {
+      setError("Failed to initiate Google sign in");
+      setGoogleIsLoading(false);
     }
   }
 
@@ -178,12 +203,15 @@ export default function SignInForm() {
             variant="outline"
             className="w-full"
             onClick={() => {
-              // TODO: Implement Google sign in
-              console.log("Google sign in clicked");
+              googleClickHandler();
             }}
+            disabled={googleIsLoading}
           >
             <GoogleIcon className="mr-2 h-5 w-5" />
-            Sign in with Google
+            {googleIsLoading ? "Signing in..." : "Sign in with Google"}
+            {googleIsLoading && (
+              <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+            )}
           </Button>
 
           {error && (
@@ -199,8 +227,12 @@ export default function SignInForm() {
                 onClick={async () => {
                   resendClickHandler();
                 }}
+                disabled={resendIsLoading}
               >
-                Resend confirmation email
+                {resendIsLoading ? "Resending..." : "Resend confirmation email"}
+                {resendIsLoading && (
+                  <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                )}
               </Button>
             </div>
           )}

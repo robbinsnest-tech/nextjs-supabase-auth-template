@@ -1,5 +1,5 @@
 import SignOutButton from "@/components/auth/sign-out-button";
-import { getUser } from "@/lib/auth/server-auth";
+import { getUser } from "@/lib/auth";
 import { Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -31,16 +31,24 @@ export default async function Dashboard() {
                 <div className="flex justify-center mb-4">
                   <div className="relative w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
                     <span className="text-4xl text-gray-600">
-                      {user?.user_metadata.first_name?.[0]?.toUpperCase() ||
-                        "?"}
+                      {(
+                        user?.user_metadata?.name?.[0] ||
+                        user?.user_metadata?.full_name?.[0] ||
+                        user?.email?.[0] ||
+                        "?"
+                      ).toUpperCase()}
                     </span>
                   </div>
                 </div>
                 <CardTitle className="text-xl font-semibold text-gray-900">
-                  {user?.user_metadata.first_name}{" "}
-                  {user?.user_metadata.last_name}
+                  {user?.user_metadata?.name ||
+                    user?.user_metadata?.full_name ||
+                    user?.email?.split("@")[0] ||
+                    "Anonymous User"}
                 </CardTitle>
-                <p className="text-gray-500 text-sm">{user?.email}</p>
+                <p className="text-gray-500 text-sm">
+                  {user?.email || "No email provided"}
+                </p>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
