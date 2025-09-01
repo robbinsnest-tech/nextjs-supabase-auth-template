@@ -1,8 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js Supabase Auth Template
 
-## Getting Started
+This template provides a robust authentication setup using Next.js 14, Supabase, and Google OAuth. It includes email confirmation, Google Sign-in, and protected routes.
 
-First, run the development server:
+## Features
+
+- 🔐 Email/Password Authentication
+- 🌐 Google OAuth Sign-in
+- ✉️ Email Confirmation
+- 🛡️ Protected Routes
+- 🎨 Modern UI with Tailwind CSS
+- 📱 Responsive Design
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+- Node.js 18.17 or later
+- A Supabase account
+- A Google Cloud Console account
+
+## Setup Instructions
+
+### 1. Environment Variables
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+### 2. Supabase Configuration
+
+1. Create a new project on [Supabase](https://supabase.com)
+2. Navigate to Authentication > Email Templates
+3. Update the "Confirm signup" template
+4. Set the following confirmation URL format:
+   ```
+   {{ .RedirectTo }}/auth/confirm?token_hash={{ .TokenHash }}&type=email
+   ```
+
+### 3. Google OAuth Setup
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. Create a new project or select an existing one
+3. Enable the Google Identity Platform
+4. Configure OAuth consent screen
+5. Create OAuth 2.0 Client ID credentials
+   - Application type: Web application
+   - Add authorized redirect URI from Supabase
+6. Copy the Client ID and Client Secret
+
+### 4. Supabase Google Auth Configuration
+
+1. In your Supabase dashboard, go to Authentication > Providers
+2. Enable Google auth provider
+3. Enter the following details:
+   - Client ID: Your Google OAuth Client ID
+   - Client Secret: Your Google OAuth Client Secret
+   - Authorized Client: [Your Client ID from the image]
+   - Callback URL: [The URL provided by Supabase]
+
+## Installation
+
+1. Clone the repository:
+
+```bash
+git clone [repository-url]
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+```
+
+3. Run the development server:
 
 ```bash
 npm run dev
@@ -10,27 +87,28 @@ npm run dev
 yarn dev
 # or
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `/src/app/(auth)` - Authentication pages (sign-in, sign-up)
+- `/src/app/(protected)` - Protected routes requiring authentication
+- `/src/components/auth` - Authentication components
+- `/src/lib` - Utility functions and types
+- `/src/utils/supabase` - Supabase client configuration
 
-## Learn More
+## Additional Resources
 
-To learn more about Next.js, take a look at the following resources:
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Supabase Documentation](https://supabase.com/docs)
+- [Google OAuth Documentation](https://developers.google.com/identity/protocols/oauth2)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Contributing
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is licensed under the MIT License - see the LICENSE file for details.
